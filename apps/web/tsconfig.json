@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@pli/ui": ["../../packages/ui/src/index.ts"],
+      "@pli/ui/*": ["../../packages/ui/src/*"],
+      "@pli/types": ["../../packages/types/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}

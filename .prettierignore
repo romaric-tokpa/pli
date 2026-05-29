@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+.next/
+.turbo/
+.vite/
+_wireframe/
+docs/wireframe/
+package-lock.json
+pnpm-lock.yaml
+
+# Document de cadrage projet fourni — ne pas reformater
+CLAUDE.md

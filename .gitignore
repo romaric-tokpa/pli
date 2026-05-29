@@ -1,0 +1,48 @@
+# Dépendances
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+build/
+.next/
+.turbo/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env & secrets — JAMAIS commiter
+.env
+.env.*
+!.env.example
+.secrets/
+
+# Système
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+
+# Tests
+.nyc_output/
+playwright-report/
+test-results/
+
+# Wireframe source (zip d'origine — on garde la version dépliée sous docs/wireframe)
+Pli-2.zip
+_wireframe/
+
+# Audit de parité — captures du build (non committées, regénérables).
+# docs/wireframe/screenshots-public/ reste versionné comme référence.
+scripts/parite/build-captures*/

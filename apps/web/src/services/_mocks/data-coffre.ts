@@ -1,0 +1,131 @@
+// Mocks portés depuis _wireframe/src/data-comptes.jsx — vue personnelle salarié.
+//
+// Le compte personnel est la clé durable du coffre, indépendante de l'employeur.
+// Aya Koffi porte deux rattachements (Comoé Industries → Groupe Atlantique CI).
+
+import type { BulletinCoffre, ComptePersonnel, Rattachement } from '@pli/types';
+
+export const COMPTES_PERSONNELS: ComptePersonnel[] = [
+  {
+    id: 'cp-aya',
+    nom: 'Koffi',
+    prenom: 'Aya',
+    telephonePerso: '+225 07 00 00 00 12',
+    telPersoMasque: '+225 07 ** ** ** 12',
+    emailPersoRecuperation: 'aya.koffi@gmail.com',
+    emailPersoMasque: 'aya.****@gmail.com',
+    photoUrl: null,
+    dateCreation: '12/03/2018',
+  },
+  {
+    id: 'cp-fatou',
+    nom: 'Diallo',
+    prenom: 'Fatou',
+    telephonePerso: '+225 05 88 31 22 47',
+    telPersoMasque: '+225 05 ** ** ** 47',
+    emailPersoRecuperation: null,
+    photoUrl: null,
+    dateCreation: '15/01/2019',
+  },
+];
+
+export const RATTACHEMENTS: Rattachement[] = [
+  {
+    id: 'ra-aya-comoe',
+    comptePersonnelId: 'cp-aya',
+    entrepriseId: 'comoe',
+    entrepriseNom: 'Comoé Industries',
+    entrepriseSecteur: 'Manufacturing',
+    matricule: 'MAT-00045',
+    emailPro: 'aya.koffi@comoe-industries.ci',
+    service: 'Comptabilité',
+    poste: 'Assistante comptable',
+    statut: 'parti',
+    dateDebut: '12/03/2018',
+    dateFin: '31/12/2024',
+  },
+  {
+    id: 'ra-aya-atlantique',
+    comptePersonnelId: 'cp-aya',
+    entrepriseId: 'atlantique',
+    entrepriseNom: 'Groupe Atlantique CI',
+    entrepriseSecteur: 'Industrie',
+    matricule: 'MAT-00112',
+    emailPro: 'aya.koffi@atlantique.ci',
+    service: 'Comptabilité',
+    poste: 'Comptable principale',
+    statut: 'actif',
+    dateDebut: '06/01/2025',
+    dateFin: null,
+  },
+  {
+    id: 'ra-fatou-atlantique',
+    comptePersonnelId: 'cp-fatou',
+    entrepriseId: 'atlantique',
+    entrepriseNom: 'Groupe Atlantique CI',
+    entrepriseSecteur: 'Industrie',
+    matricule: 'MAT-00120',
+    emailPro: 'fatou.diallo@atlantique.ci',
+    service: 'RH',
+    poste: 'Chargée RH',
+    statut: 'actif',
+    dateDebut: '15/01/2019',
+    dateFin: null,
+  },
+];
+
+// Échantillon : 2 bulletins Atlantique + 1 bulletin Comoé pour Aya.
+// Suffit pour le rendu coffre et les tests d'invariant. Compléter à l'étape 10.
+export const BULLETINS_COFFRE: BulletinCoffre[] = [
+  {
+    id: 'b-atlantique-2026-02',
+    rattachementId: 'ra-aya-atlantique',
+    employeurNom: 'Groupe Atlantique CI',
+    periode: '2026-02',
+    periodeLibelle: 'Février 2026',
+    fichier: 'bulletin_atlantique_2026-02.pdf',
+    brut: 596_000,
+    cnps: 37_548,
+    its: 85_452,
+    net: 473_000,
+    statutConsultation: 'non_consulte',
+    statutSignature: 'non_signe',
+    dateRemise: '27/02/2026',
+    dateAccuseReception: null,
+    dateSignature: null,
+  },
+  {
+    id: 'b-atlantique-2026-01',
+    rattachementId: 'ra-aya-atlantique',
+    employeurNom: 'Groupe Atlantique CI',
+    periode: '2026-01',
+    periodeLibelle: 'Janvier 2026',
+    fichier: 'bulletin_atlantique_2026-01.pdf',
+    brut: 596_000,
+    cnps: 37_548,
+    its: 85_452,
+    net: 473_000,
+    statutConsultation: 'consulte',
+    statutSignature: 'signe',
+    dateRemise: '29/01/2026',
+    dateAccuseReception: '03/02/2026 09:30',
+    dateSignature: '03/02/2026 10:30',
+  },
+  {
+    id: 'b-comoe-2024-12',
+    rattachementId: 'ra-aya-comoe',
+    employeurNom: 'Comoé Industries',
+    periode: '2024-12',
+    periodeLibelle: 'Décembre 2024',
+    fichier: 'bulletin_comoe_2024-12.pdf',
+    brut: 425_000,
+    cnps: 26_775,
+    its: 30_225,
+    net: 368_000,
+    statutConsultation: 'consulte',
+    statutSignature: 'signe',
+    dateRemise: '28/12/2024',
+    dateAccuseReception: '02/01/2025 10:15',
+    dateSignature: '03/01/2025 10:30',
+  },
+];

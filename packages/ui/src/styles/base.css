@@ -1,0 +1,688 @@
+/* Base CSS Pli — portée depuis _wireframe/index.html (lignes 57-248).
+   Aucune valeur charte n'est dupliquée : toutes passent par les CSS variables
+   :root définies ci-dessous, miroir des tokens packages/ui/src/tokens.ts.
+   Le test src/__tests__/base-tokens.test.ts vérifie la synchronisation.
+
+   Les valeurs hex restantes (#1f3e73, #d17050, #e8946f, #f8f6f0, #b8c0ce,
+   #eceff4, #f5f7fa) sont des DÉRIVÉES visuelles (éclaircissements,
+   variantes de surface) hors charte, annotées sur leur ligne. */
+
+/* ─── Tokens charte exposés comme CSS custom properties ────────────────── */
+:root {
+  --pli-encre: #15294e;
+  --pli-cachet: #b85737;
+  --pli-papier: #f6f2eb;
+  --pli-texte: #15294e;
+  --pli-texte-secondaire: #5b6577;
+  --pli-bordure: #dce1e9;
+  --pli-surface: #f3f5f9;
+  --pli-succes: #2f8f5b;
+  --pli-attente: #d9a227;
+  --pli-erreur: #cb3b33;
+  --pli-info: #2c6fb3;
+}
+
+/* ─── Globals ──────────────────────────────────────────────────────────── */
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--pli-encre);
+  background: var(--pli-papier);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar discrète */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--pli-bordure);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b8c0ce;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Focus ring uniforme */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--pli-info);
+  outline-offset: 2px;
+}
+
+/* ─── Animations & skeleton ────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, #eceff4 0%, #f5f7fa 50%, #eceff4 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+
+/* ─── Cadre téléphone (mobile salarié) ─────────────────────────────────── */
+.phone-frame {
+  width: 390px;
+  height: 820px;
+  border-radius: 44px;
+  background: var(--pli-encre);
+  padding: 12px;
+  box-shadow:
+    0 30px 60px rgb(from var(--pli-encre) r g b / 0.18),
+    0 8px 20px rgb(from var(--pli-encre) r g b / 0.12);
+  position: relative;
+}
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 34px;
+  overflow: hidden;
+  background: #ffffff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.phone-notch {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 28px;
+  background: var(--pli-encre);
+  border-radius: 16px;
+  z-index: 50;
+}
+
+/* ─── Toast ────────────────────────────────────────────────────────────── */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.toast-in {
+  animation: toastIn 0.25s ease-out;
+}
+
+/* ─── Landing — animations & transitions ──────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Reveal au scroll : état initial puis classe .is-visible */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+.reveal-delay-1 {
+  transition-delay: 0.08s;
+}
+.reveal-delay-2 {
+  transition-delay: 0.16s;
+}
+.reveal-delay-3 {
+  transition-delay: 0.24s;
+}
+.reveal-delay-4 {
+  transition-delay: 0.32s;
+}
+.reveal-delay-5 {
+  transition-delay: 0.4s;
+}
+
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-fade-up {
+  animation: heroFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.hero-fade-up-1 {
+  animation-delay: 0.05s;
+}
+.hero-fade-up-2 {
+  animation-delay: 0.15s;
+}
+.hero-fade-up-3 {
+  animation-delay: 0.25s;
+}
+.hero-fade-up-4 {
+  animation-delay: 0.35s;
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.float-y {
+  animation: floatY 5s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+}
+.wiggle-stamp {
+  animation: wiggle 4s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+.pulse-dot {
+  animation: pulseDot 1.8s ease-in-out infinite;
+}
+
+/* Cartes — micro-interactions */
+.card-lift {
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s,
+    border-color 0.35s;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  border-color: rgb(from var(--pli-encre) r g b / 0.25);
+  box-shadow:
+    0 12px 28px rgb(from var(--pli-encre) r g b / 0.08),
+    0 4px 10px rgb(from var(--pli-encre) r g b / 0.05);
+}
+
+/* Boutons — lift subtil */
+.btn-lift {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s;
+}
+.btn-lift:hover {
+  transform: translateY(-1px);
+}
+.btn-lift:active {
+  transform: translateY(0);
+}
+
+/* Lien de nav — soulignement animé */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background: var(--pli-cachet);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Caret dans la FAQ — animation rotation */
+.faq-caret {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.faq-open .faq-caret {
+  transform: rotate(180deg);
+}
+.faq-body {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 0.45s ease,
+    opacity 0.3s ease,
+    padding 0.3s ease;
+}
+.faq-open .faq-body {
+  max-height: 400px;
+  opacity: 1;
+}
+
+/* Respect des préférences de mouvement */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .hero-fade-up,
+  .float-y,
+  .wiggle-stamp,
+  .pulse-dot,
+  .card-lift,
+  .btn-lift,
+  .nav-link::after,
+  .faq-caret,
+  .faq-body {
+    animation: none !important;
+    transition: none !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ─── Section « Pour votre entreprise » — BENTO grid ───────────────────── */
+.bento {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: 168px;
+}
+.bento > * {
+  border-radius: 16px;
+  padding: 22px;
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s,
+    background-color 0.3s;
+}
+.bento > *:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgb(from var(--pli-encre) r g b / 0.1);
+}
+.bento .b1 {
+  grid-column: span 4;
+  grid-row: span 2;
+  background: var(--pli-encre);
+  color: white;
+  padding: 32px;
+}
+.bento .b2 {
+  grid-column: span 2;
+  grid-row: span 1;
+  background: var(--pli-papier);
+  border: 1px solid var(--pli-bordure);
+}
+.bento .b3 {
+  grid-column: span 2;
+  grid-row: span 1;
+  background: white;
+  border: 1px solid var(--pli-bordure);
+}
+.bento .b4 {
+  grid-column: span 2;
+  grid-row: span 1;
+  background: var(--pli-cachet);
+  color: white;
+}
+.bento .b5 {
+  grid-column: span 2;
+  grid-row: span 1;
+  background: white;
+  border: 1px solid var(--pli-bordure);
+}
+.bento .b6 {
+  grid-column: span 2;
+  grid-row: span 1;
+  background: var(--pli-papier);
+  border: 1px solid var(--pli-bordure);
+}
+@media (max-width: 900px) {
+  .bento {
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 160px;
+  }
+  .bento .b1 {
+    grid-column: span 2;
+    grid-row: span 1;
+    padding: 22px;
+  }
+  .bento .b2,
+  .bento .b3,
+  .bento .b4,
+  .bento .b5,
+  .bento .b6 {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}
+
+/* Entrée séquentielle */
+@keyframes bentoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.bento.in-view > * {
+  animation: bentoIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.bento.in-view > *:nth-child(1) {
+  animation-delay: 0s;
+}
+.bento.in-view > *:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.bento.in-view > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.bento.in-view > *:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.bento.in-view > *:nth-child(5) {
+  animation-delay: 0.32s;
+}
+.bento.in-view > *:nth-child(6) {
+  animation-delay: 0.4s;
+}
+
+/* ─── Section « Fonctionnalités » — lignes alternées ──────────────────── */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.feat-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 24px;
+  align-items: center;
+  padding: 24px 28px;
+  border-radius: 14px;
+  transition:
+    background-color 0.3s,
+    transform 0.3s;
+}
+.feat-row:hover {
+  background: #f8f6f0;
+  transform: translateX(4px);
+}
+.feat-row .feat-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--pli-encre) 0%, #1f3e73 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.feat-row.alt .feat-icon {
+  background: linear-gradient(135deg, var(--pli-cachet) 0%, #d17050 100%);
+}
+.feat-row.in-view.is-visible {
+  animation: slideInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.feat-row.alt.in-view.is-visible {
+  animation: slideInRight 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── Section « Comment ça marche » — timeline verticale ──────────────── */
+.timeline {
+  position: relative;
+  padding-left: 56px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 23px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--pli-cachet) 0%, var(--pli-encre) 100%);
+  border-radius: 2px;
+}
+.timeline-step {
+  position: relative;
+  padding-bottom: 36px;
+}
+.timeline-step:last-child {
+  padding-bottom: 0;
+}
+.timeline-num {
+  position: absolute;
+  left: -56px;
+  top: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--pli-encre);
+  color: var(--pli-encre);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  box-shadow: 0 0 0 6px var(--pli-papier);
+  transition:
+    transform 0.35s,
+    background 0.35s,
+    color 0.35s;
+}
+.timeline-step:hover .timeline-num {
+  transform: scale(1.08);
+  background: var(--pli-encre);
+  color: white;
+}
+@keyframes timelinePop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes timelineSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.timeline.in-view .timeline-num {
+  animation: timelinePop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.timeline.in-view .timeline-content {
+  animation: timelineSlide 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.timeline.in-view .timeline-step:nth-child(1) .timeline-num,
+.timeline.in-view .timeline-step:nth-child(1) .timeline-content {
+  animation-delay: 0s;
+}
+.timeline.in-view .timeline-step:nth-child(2) .timeline-num,
+.timeline.in-view .timeline-step:nth-child(2) .timeline-content {
+  animation-delay: 0.18s;
+}
+.timeline.in-view .timeline-step:nth-child(3) .timeline-num,
+.timeline.in-view .timeline-step:nth-child(3) .timeline-content {
+  animation-delay: 0.36s;
+}
+.timeline.in-view .timeline-step:nth-child(4) .timeline-num,
+.timeline.in-view .timeline-step:nth-child(4) .timeline-content {
+  animation-delay: 0.54s;
+}
+
+/* ─── Section « Sécurité » — liste dark sur encre ─────────────────────── */
+.sec-dark {
+  background: var(--pli-encre);
+  color: white;
+  border-radius: 24px;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.sec-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+}
+.sec-item {
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  transition:
+    transform 0.3s,
+    background-color 0.3s;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 8px;
+}
+.sec-item:hover {
+  transform: translateX(4px);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+.sec-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgb(from var(--pli-cachet) r g b / 0.18);
+  color: #e8946f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition:
+    transform 0.3s,
+    background-color 0.3s;
+}
+.sec-item:hover .sec-item-icon {
+  transform: rotate(-8deg) scale(1.1);
+  background-color: rgb(from var(--pli-cachet) r g b / 0.32);
+}
+@media (max-width: 900px) {
+  .sec-list {
+    grid-template-columns: 1fr;
+  }
+}
+@keyframes secReveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.sec-list.in-view .sec-item {
+  animation: secReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.sec-list.in-view .sec-item:nth-child(1) {
+  animation-delay: 0s;
+}
+.sec-list.in-view .sec-item:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.sec-list.in-view .sec-item:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.sec-list.in-view .sec-item:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.sec-list.in-view .sec-item:nth-child(5) {
+  animation-delay: 0.32s;
+}
+.sec-list.in-view .sec-item:nth-child(6) {
+  animation-delay: 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bento > *,
+  .feat-row,
+  .timeline-num,
+  .timeline-content,
+  .sec-item {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,8 @@
+/* Police Inter — bundlée en production via @fontsource/inter.
+   Aucune dépendance à fonts.googleapis.com.
+   Le wireframe utilise les graisses 400 / 500 / 600 / 700. */
+
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';

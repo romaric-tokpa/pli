@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      AUCUNE balise <meta name="robots"> statique ici.
+      L'app SPA partage le même index.html sur toutes les routes (rewrite
+      vers index.html en fallback). Une noindex statique s'appliquerait à
+      l'ensemble du site, pas seulement à la console opérateur.
+
+      Le noindex est injecté DYNAMIQUEMENT par AdminLayout (src/routes/admin/
+      layout.tsx) quand une route /admin est active, et retiré au démontage.
+      Première barrière de défense : public/robots.txt (Disallow /admin).
+    -->
+    <title>Pli — le coffre-fort de paie</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

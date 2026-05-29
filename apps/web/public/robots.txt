@@ -1,0 +1,6 @@
+# Crawlers — première barrière. L'injection dynamique du <meta name="robots">
+# par AdminLayout est la seconde (et tient même si le crawler ignore robots.txt).
+
+User-agent: *
+Disallow: /admin/
+Disallow: /admin

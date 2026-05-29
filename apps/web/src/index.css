@@ -1,0 +1,12 @@
+/* Ordre important :
+   1. Police Inter bundlée (poids 400/500/600/700)
+   2. Base CSS (:root tokens, focus ring, phone-frame, animations) — fournit
+      les CSS variables consommées par Tailwind via le preset
+   3. Directives Tailwind */
+
+@import '@pli/ui/styles/fonts.css';
+@import '@pli/ui/styles/base.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

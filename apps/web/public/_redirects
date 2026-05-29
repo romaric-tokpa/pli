@@ -1,0 +1,20 @@
+# SPA fallback — toutes les routes inconnues servent index.html.
+# Format compatible Netlify, Cloudflare Pages, Render, et la plupart des
+# hébergeurs statiques modernes. Pour Vercel, voir apps/web/vercel.json.
+
+/*    /index.html   200
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NOTE Phase 5 — Console opérateur en déploiement SÉPARÉ.
+#
+# À terme (cf. CLAUDE.md, invariant 4), la console opérateur (/admin/*) sera
+# servie depuis un domaine ou sous-domaine ISOLÉ (par ex. console.pli.ci),
+# non indexé, accessible uniquement par l'équipe Pli. Le fallback ci-dessus
+# ne devra alors PLUS servir /admin/* sur le domaine principal — soit retirer
+# explicitement /admin/* du rewrite, soit renvoyer 404 sur ces chemins.
+#
+# Pour les phases 0-4 (développement de l'UI), /admin/* est encore servi par
+# le fallback ci-dessus, ce qui est acceptable car robots.txt + l'injection
+# dynamique <meta name="robots" content="noindex"> par AdminLayout protègent
+# l'indexation. Aucune fuite vers le web public.
+# ─────────────────────────────────────────────────────────────────────────────
