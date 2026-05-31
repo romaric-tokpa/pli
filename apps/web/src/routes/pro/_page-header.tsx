@@ -14,7 +14,10 @@ export interface ProPageHeaderProps {
 
 export function ProPageHeader({ title, subtitle, breadcrumbs, actions }: ProPageHeaderProps) {
   return (
-    <div className="px-8 py-6 border-b border-bordure bg-white">
+    <div
+      className="px-8 py-6 border-b border-bordure bg-white"
+      data-testid="page-header"
+    >
       {breadcrumbs && (
         <div className="mb-2">
           <Breadcrumbs items={breadcrumbs} />

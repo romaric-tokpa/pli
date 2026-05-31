@@ -5,9 +5,15 @@
 // factory HTTP. Les invariants continuent à protéger la prod sans
 // modification du code de test.
 
-import type { ContexteEntreprise } from '../contexte.js';
+import type {
+  ContexteAdmin,
+  ContexteEntreprise,
+  ContextePortefeuilleCabinet,
+} from '../contexte.js';
 import {
+  creerAdminServiceMock,
   creerBulletinsServiceMock,
+  creerCabinetsServiceMock,
   creerFacturationServiceMock,
   creerReclamationsServiceMock,
   creerReconciliationServiceMock,
@@ -15,7 +21,9 @@ import {
   creerSecuriteServiceMock,
 } from '../index.js';
 import {
+  suiteContratAdminAgregat,
   suiteContratAppairageBorneTenant,
+  suiteContratCloisonnementCabinet,
   suiteContratDistributionRefuseExceptions,
   suiteContratFacturation,
   suiteContratNetJamaisEnListe,
@@ -64,3 +72,28 @@ suiteContratFacturation('mock', creerFacturationServiceMock, {
 
 // Invariant 6 — Sessions Pro et journal d'audit
 suiteContratSecurite('mock', creerSecuriteServiceMock, CTX_ATLANTIQUE);
+
+// Invariant 7 — Cloisonnement cabinet (PORTEFEUILLE invisible entre cabinets,
+// PONT appartientAuPortefeuille refuse les ids forgés). Le test croise deux
+// cabinets (Cabinet Comptable Ébrié + Lagune Intérim) et un id inexistant.
+const CTX_CAB_EBRIE: ContextePortefeuilleCabinet = {
+  type: 'portefeuille_cabinet',
+  cabinetId: 'cab-ebrie',
+};
+const CTX_CAB_LAGUNE: ContextePortefeuilleCabinet = {
+  type: 'portefeuille_cabinet',
+  cabinetId: 'cab-lagune-i',
+};
+suiteContratCloisonnementCabinet('mock', creerCabinetsServiceMock, {
+  ctxCabinetA: CTX_CAB_EBRIE,
+  ctxCabinetB: CTX_CAB_LAGUNE,
+  entrepriseAuPortefeuilleA: 'ec-cacao', // Cacao Plus SARL — cab-ebrie
+  entrepriseAuPortefeuilleB: 'ec-bouake-ph', // Bouaké Pharma — cab-lagune-i
+  entrepriseInexistante: 'ec-inexistante-forgee',
+  gestionnaireDuCabinetB: 'uc-4', // Stéphanie Béhi — cab-lagune-i
+});
+
+// Invariant 8 — AdminService : agrégat cross-tenant légitime, net jamais agrégé,
+// impersonation produit une entrée d'audit (vérification complète en 12d).
+const CTX_ADMIN: ContexteAdmin = { type: 'admin', adminId: 'u1' };
+suiteContratAdminAgregat('mock', creerAdminServiceMock, CTX_ADMIN);

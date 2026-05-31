@@ -15,8 +15,6 @@ import { lazy, Suspense, type ReactNode } from 'react';
 import { SiteLanding } from './routes/public/landing.js';
 
 import { NotFound } from './routes/not-found.js';
-import { AdminLayout } from './routes/admin/layout.js';
-import { AdminHub } from './routes/admin/hub.js';
 
 // ─── Lazy chunks par route publique ───────────────────────────────────────
 const PreviewHub = lazy(() =>
@@ -36,6 +34,14 @@ const SiteDevenirPartenaire = lazy(() =>
 const SiteMotDePasseOublie = lazy(() =>
   import('./routes/public/mot-de-passe-oublie.js').then((m) => ({
     default: m.SiteMotDePasseOublie,
+  })),
+);
+const SiteVerification = lazy(() =>
+  import('./routes/public/verification.js').then((m) => ({ default: m.SiteVerification })),
+);
+const SiteReinitialiserMotDePasse = lazy(() =>
+  import('./routes/public/reinitialiser-mot-de-passe.js').then((m) => ({
+    default: m.SiteReinitialiserMotDePasse,
   })),
 );
 const SiteOnboarding = lazy(() =>
@@ -113,6 +119,90 @@ const ProSecurite = lazy(() =>
 );
 const ProParametres = lazy(() =>
   import('./routes/pro/parametres.js').then((m) => ({ default: m.ProParametres })),
+);
+
+// ─── Console opérateur (étape 12) — admin/* lazy pour ne pas alourdir le bundle initial
+const AdminLayout = lazy(() =>
+  import('./routes/admin/layout.js').then((m) => ({ default: m.AdminLayout })),
+);
+const AdminVueEnsemble = lazy(() =>
+  import('./routes/admin/vue-ensemble.js').then((m) => ({ default: m.AdminVueEnsemble })),
+);
+const AdminEntreprises = lazy(() =>
+  import('./routes/admin/entreprises.js').then((m) => ({ default: m.AdminEntreprises })),
+);
+const AdminCabinets = lazy(() =>
+  import('./routes/admin/cabinets.js').then((m) => ({ default: m.AdminCabinets })),
+);
+const AdminRevenus = lazy(() =>
+  import('./routes/admin/revenus.js').then((m) => ({ default: m.AdminRevenus })),
+);
+const AdminPlans = lazy(() =>
+  import('./routes/admin/plans.js').then((m) => ({ default: m.AdminPlans })),
+);
+const AdminSante = lazy(() =>
+  import('./routes/admin/sante.js').then((m) => ({ default: m.AdminSante })),
+);
+const AdminAudit = lazy(() =>
+  import('./routes/admin/audit.js').then((m) => ({ default: m.AdminAudit })),
+);
+const AdminUtilisateurs = lazy(() =>
+  import('./routes/admin/utilisateurs.js').then((m) => ({ default: m.AdminUtilisateurs })),
+);
+const AdminModules = lazy(() =>
+  import('./routes/admin/modules.js').then((m) => ({ default: m.AdminModules })),
+);
+const AdminSupport = lazy(() =>
+  import('./routes/admin/support.js').then((m) => ({ default: m.AdminSupport })),
+);
+const AdminConformite = lazy(() =>
+  import('./routes/admin/conformite.js').then((m) => ({ default: m.AdminConformite })),
+);
+const AdminCommunications = lazy(() =>
+  import('./routes/admin/communications.js').then((m) => ({
+    default: m.AdminCommunications,
+  })),
+);
+const AdminParametres = lazy(() =>
+  import('./routes/admin/parametres.js').then((m) => ({ default: m.AdminParametres })),
+);
+
+// ─── Surface cabinet (étape 11) — shell d'abord (11a), écrans aux sub-lots suivants
+const CabinetLayout = lazy(() =>
+  import('./routes/cabinet/_layout.js').then((m) => ({ default: m.CabinetLayout })),
+);
+const CabinetPortefeuille = lazy(() =>
+  import('./routes/cabinet/portefeuille.js').then((m) => ({
+    default: m.CabinetPortefeuille,
+  })),
+);
+const CabinetEntreprise = lazy(() =>
+  import('./routes/cabinet/entreprise.js').then((m) => ({
+    default: m.CabinetEntreprise,
+  })),
+);
+const CabinetSuivi = lazy(() =>
+  import('./routes/cabinet/suivi.js').then((m) => ({ default: m.CabinetSuivi })),
+);
+const CabinetStatistiques = lazy(() =>
+  import('./routes/cabinet/statistiques.js').then((m) => ({
+    default: m.CabinetStatistiques,
+  })),
+);
+const CabinetGestionnaires = lazy(() =>
+  import('./routes/cabinet/gestionnaires.js').then((m) => ({
+    default: m.CabinetGestionnaires,
+  })),
+);
+const CabinetFacturation = lazy(() =>
+  import('./routes/cabinet/facturation.js').then((m) => ({
+    default: m.CabinetFacturation,
+  })),
+);
+const CabinetParametres = lazy(() =>
+  import('./routes/cabinet/parametres.js').then((m) => ({
+    default: m.CabinetParametres,
+  })),
 );
 
 // ─── Surface mobile salarié (étape 10) — shell + placeholders ────────────
@@ -196,6 +286,22 @@ export const router = createBrowserRouter([
     element: (
       <WithSuspense>
         <SiteMotDePasseOublie />
+      </WithSuspense>
+    ),
+  },
+  {
+    path: '/verification',
+    element: (
+      <WithSuspense>
+        <SiteVerification />
+      </WithSuspense>
+    ),
+  },
+  {
+    path: '/reinitialiser-mot-de-passe',
+    element: (
+      <WithSuspense>
+        <SiteReinitialiserMotDePasse />
       </WithSuspense>
     ),
   },
@@ -402,6 +508,74 @@ export const router = createBrowserRouter([
     ],
   },
 
+  // Surface cabinet — sidebar + topbar / contextbar via CabinetLayout
+  {
+    path: '/cabinet',
+    element: (
+      <WithSuspense>
+        <CabinetLayout />
+      </WithSuspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: (
+          <WithSuspense>
+            <CabinetPortefeuille />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'entreprises/:id',
+        element: (
+          <WithSuspense>
+            <CabinetEntreprise />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'suivi',
+        element: (
+          <WithSuspense>
+            <CabinetSuivi />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'statistiques',
+        element: (
+          <WithSuspense>
+            <CabinetStatistiques />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'gestionnaires',
+        element: (
+          <WithSuspense>
+            <CabinetGestionnaires />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'facturation',
+        element: (
+          <WithSuspense>
+            <CabinetFacturation />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'parametres',
+        element: (
+          <WithSuspense>
+            <CabinetParametres />
+          </WithSuspense>
+        ),
+      },
+    ],
+  },
+
   // Surface mobile salarié — PhoneFrame + MobileTabBar via MobileLayout
   {
     path: '/app',
@@ -476,8 +650,117 @@ export const router = createBrowserRouter([
   // Console opérateur — noindex injecté par AdminLayout
   {
     path: '/admin',
-    element: <AdminLayout />,
-    children: [{ index: true, element: <AdminHub /> }],
+    element: (
+      <WithSuspense>
+        <AdminLayout />
+      </WithSuspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: (
+          <WithSuspense>
+            <AdminVueEnsemble />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'entreprises',
+        element: (
+          <WithSuspense>
+            <AdminEntreprises />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'cabinets',
+        element: (
+          <WithSuspense>
+            <AdminCabinets />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'revenus',
+        element: (
+          <WithSuspense>
+            <AdminRevenus />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'plans',
+        element: (
+          <WithSuspense>
+            <AdminPlans />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'sante',
+        element: (
+          <WithSuspense>
+            <AdminSante />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'audit',
+        element: (
+          <WithSuspense>
+            <AdminAudit />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'utilisateurs',
+        element: (
+          <WithSuspense>
+            <AdminUtilisateurs />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'modules',
+        element: (
+          <WithSuspense>
+            <AdminModules />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'support',
+        element: (
+          <WithSuspense>
+            <AdminSupport />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'conformite',
+        element: (
+          <WithSuspense>
+            <AdminConformite />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'communications',
+        element: (
+          <WithSuspense>
+            <AdminCommunications />
+          </WithSuspense>
+        ),
+      },
+      {
+        path: 'parametres',
+        element: (
+          <WithSuspense>
+            <AdminParametres />
+          </WithSuspense>
+        ),
+      },
+    ],
   },
 
   // 404 catch-all

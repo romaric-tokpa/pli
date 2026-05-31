@@ -14,14 +14,14 @@
 
 Tout ce qui suit doit être livré ou explicitement abandonné avant la clôture. Chaque ligne bloque la mention « Phase 0 100 % ».
 
-### A.1 — Écrans encore en stub ou manquants
+### A.1 — Écrans encore en stub ou manquants ✅ SOLDÉE
 
-| Fichier / Route | Statut | À faire |
+| Fichier / Route | Statut | Résultat |
 |---|---|---|
-| `apps/web/src/routes/pro/bulletins/depot-individuel.tsx` | **Stub** — bandeau Phase 0 + lien vers le dépôt en masse | Porter verbatim `ProBulletinDepotIndividuel` de `_wireframe/src/pro-bulletins.jsx` (3 étapes : PDF → matricule + période → récap). Utilise `SalariesService.resoudreParMatricule(ctx)` pour l'appairage borné au tenant. |
-| `/verification` (`SiteVerification` v2) | **Manquant** — référencée par le flow auth | **Bloquant clôture (confirmé sub-lot 10a)** — « se connecter en 2FA » est un parcours indivisible. Porter l'écran 2FA standalone de `_wireframe/src/site-auth-v2.jsx` (verbatim). Sans elle, le parcours « code SMS / TOTP » de connexion tombe en 404. |
-| `/reinitialiser-mot-de-passe` (`SiteReinitialiserMotDePasse` v2) | **Manquant** | **Bloquant clôture (confirmé sub-lot 10a)** — « récupérer son mot de passe » est un parcours indivisible. Porter depuis v2 (étape post-code de l'e-mail de récupération). |
-| `apps/web/src/routes/admin/hub.tsx` | **Stub** explicite « Migration prévue à l'étape 12 » | Étape 12 du périmètre Phase 0 : porter `admin-overview.jsx`, `admin-entreprises.jsx`, `admin-business.jsx`, `admin-ops.jsx`. Déploiement séparé en Phase 5, mais le code doit exister. |
+| ~~`apps/web/src/routes/pro/bulletins/depot-individuel.tsx`~~ | ~~Stub~~ → **Porté** (A.1) | 3 étapes (PDF → matricule + période → récap) via `SalariesService.resoudreParMatricule(ctx)` ; couvert par `depot-individuel-appairage.test.tsx` (MAT-00112 résout Aya, MAT-00301 introuvable depuis Atlantique). |
+| ~~`/verification` (`SiteVerification` v2)~~ | ~~Manquante~~ → **Portée** (A.1) | Challenge 2FA standalone via `AuthShell` ; tests verts (`auth-parcours-indivisibles.test.tsx`). Le `sessionStorage.pli_auth_target` posé par /connexion redirige vers /pro ou /cabinet. |
+| ~~`/reinitialiser-mot-de-passe` (`SiteReinitialiserMotDePasse` v2)~~ | ~~Manquante~~ → **Portée** (A.1) | Landing depuis l'e-mail de récupération : nouveau mot de passe + jauge de force + confirmation. |
+| ~~`apps/web/src/routes/admin/hub.tsx`~~ | ~~Stub~~ → **Soldée** à l'étape 12 (12a) | Remplacé par `AdminVueEnsemble` + 12 routes admin réelles ; ancien `hub.tsx` supprimé. Couvert par la garde `sidebar-pas-de-lien-mort.test.tsx` (27 tests). |
 | ~~`apps/web/src/routes/app/placeholders.tsx`~~ | ✅ Tous portés (sub-lots 10a/b/c). Fichier supprimé. | — |
 
 ### A.2 — Performance bundle
@@ -72,6 +72,9 @@ Fichiers concernés (12) :
 - `apps/web/src/routes/pro/parametres.tsx` — contexte tenant + ID Pli / date activation / conseiller hardcodés
 - `apps/web/src/routes/app/_layout.tsx` + tous les `app/*.tsx` — `CONTEXTE_SALARIE` hardcodé `cp-aya` (mobile salarié)
 - `apps/web/src/routes/app/signature.tsx` — `IP_DEMO` figée (renseignée par le serveur en Phase 1)
+- `apps/web/src/routes/cabinet/_layout.tsx` + tous les `cabinet/*.tsx` (`portefeuille`, `entreprise`, `suivi`, `statistiques`, `gestionnaires`, `facturation`, `parametres`) — `CABINET_COURANT_ID` (`cab-ebrie`) et `GESTIONNAIRE_COURANT_ID` (`uc-1`) hardcodés ; `CONSEILLER_DEMO` figé dans `parametres.tsx` (espace cabinet, étape 11)
+- `apps/web/src/routes/admin/layout.tsx` — `UTILISATEUR_NOM` (`Drissa Diomandé`), `INCIDENT_ACTIF/TITRE/DESC/DEPUIS`, `TICKETS_OUVERTS` hardcodés ; en Phase 1, branchés à `AdminService.obtenirEtatPlateforme` (sub-lot 12a)
+- `apps/web/src/routes/admin/*.tsx` (vue-ensemble, entreprises, cabinets, utilisateurs, revenus, plans, modules, support, conformite, sante, communications, parametres, audit) — `CONTEXTE_DEMO` = `{ type: 'admin', adminId: 'u1' }` hardcodé ; à brancher à `AuthService.contexteCourant()` Phase 1 (sub-lots 12b/c/d)
 
 ### B.2 — Invariants serveur
 

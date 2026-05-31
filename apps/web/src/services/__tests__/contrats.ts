@@ -10,13 +10,21 @@
 
 import { describe, expect, it } from 'vitest';
 
-import type { ContexteEntreprise, ContexteScopeEntreprise } from '../contexte.js';
+import type {
+  ContexteAdmin,
+  ContexteEntreprise,
+  ContextePortefeuilleCabinet,
+  ContexteScopeEntreprise,
+} from '../contexte.js';
+import type { IdEntite } from '@pli/types';
 import type { BulletinsService } from '../bulletins-service.js';
 import type { SalariesService } from '../salaries-service.js';
 import type { ReconciliationService } from '../reconciliation-service.js';
 import type { ReclamationsService } from '../reclamations-service.js';
 import type { FacturationService } from '../facturation-service.js';
 import type { SecuriteService } from '../securite-service.js';
+import type { CabinetsService } from '../cabinets-service.js';
+import type { AdminService } from '../admin-service.js';
 
 // -----------------------------------------------------------------------------
 // Invariant 1 — Net JAMAIS dans une liste
@@ -379,6 +387,235 @@ export function suiteContratSecurite(
       const morceau = cible.utilisateur.slice(0, 3);
       const filtre = await service.listerJournal(ctx, { recherche: morceau });
       expect(filtre.length).toBeGreaterThan(0);
+    });
+  });
+}
+
+// -----------------------------------------------------------------------------
+// Invariant 7 — Cloisonnement cabinet (CLAUDE.md invariant 5)
+//
+// LE PLUS IMPORTANT de cette surface. Le cabinet voit son portefeuille, mais :
+//  1. Aucune méthode du service ne fuit une entreprise d'un autre cabinet.
+//  2. `appartientAuPortefeuille` — UNIQUE PONT entre mode portefeuille et
+//     mode entreprise scellée — REFUSE explicitement un id forgé (entreprise
+//     d'un autre cabinet, ou id inventé).
+//  3. `obtenirGestionnaire` est borné au cabinet : un gestionnaire d'un autre
+//     cabinet n'est jamais renvoyé, même si son id est correct.
+//  4. Les métriques du portefeuille ne contiennent JAMAIS une entreprise hors
+//     portefeuille.
+// -----------------------------------------------------------------------------
+export function suiteContratCloisonnementCabinet(
+  nomImpl: string,
+  factory: () => CabinetsService,
+  config: {
+    ctxCabinetA: ContextePortefeuilleCabinet;
+    ctxCabinetB: ContextePortefeuilleCabinet;
+    /** Id d'une entreprise présente UNIQUEMENT dans le portefeuille de A. */
+    entrepriseAuPortefeuilleA: IdEntite;
+    /** Id d'une entreprise présente UNIQUEMENT dans le portefeuille de B. */
+    entrepriseAuPortefeuilleB: IdEntite;
+    /** Id d'une entreprise inexistante (forgé) — n'est dans AUCUN portefeuille. */
+    entrepriseInexistante: IdEntite;
+    /** Id d'un gestionnaire appartenant au cabinet B. */
+    gestionnaireDuCabinetB: IdEntite;
+  },
+): void {
+  describe(`[Contrat ${nomImpl}] CabinetsService — Cloisonnement du portefeuille (invariant 5)`, () => {
+    const {
+      ctxCabinetA,
+      ctxCabinetB,
+      entrepriseAuPortefeuilleA,
+      entrepriseAuPortefeuilleB,
+      entrepriseInexistante,
+      gestionnaireDuCabinetB,
+    } = config;
+
+    it('obtenirPortefeuille() du cabinet A ne contient AUCUNE entreprise du cabinet B', async () => {
+      const service = factory();
+      const portA = await service.obtenirPortefeuille(ctxCabinetA);
+      const portB = await service.obtenirPortefeuille(ctxCabinetB);
+      expect(portA.length).toBeGreaterThan(0);
+      expect(portB.length).toBeGreaterThan(0);
+      const idsB = new Set(portB.map((e) => e.id));
+      for (const eA of portA) {
+        expect(idsB.has(eA.id)).toBe(false);
+      }
+    });
+
+    it('appartientAuPortefeuille() — PONT — REFUSE explicitement une entreprise du cabinet B depuis le contexte de A', async () => {
+      // C'est LE test qui prouve que le pont unique entre mode portefeuille
+      // et mode entreprise scellée tient : un id forgé d'une entreprise d'un
+      // autre cabinet ne traverse JAMAIS.
+      const service = factory();
+      const autorise = await service.appartientAuPortefeuille(
+        ctxCabinetA,
+        entrepriseAuPortefeuilleB,
+      );
+      expect(autorise).toBe(false);
+    });
+
+    it('appartientAuPortefeuille() — PONT — REFUSE un id totalement inexistant', async () => {
+      const service = factory();
+      const autorise = await service.appartientAuPortefeuille(
+        ctxCabinetA,
+        entrepriseInexistante,
+      );
+      expect(autorise).toBe(false);
+    });
+
+    it('appartientAuPortefeuille() — PONT — accepte une entreprise du portefeuille courant', async () => {
+      // Symétrie positive : la garde doit aussi DIRE OUI quand c'est légitime.
+      const service = factory();
+      const autorise = await service.appartientAuPortefeuille(
+        ctxCabinetA,
+        entrepriseAuPortefeuilleA,
+      );
+      expect(autorise).toBe(true);
+    });
+
+    it('obtenirGestionnaire() refuse un gestionnaire d\'un AUTRE cabinet, même avec un id correct', async () => {
+      // Cloisonnement symétrique sur les gestionnaires : le cabinet A ne peut
+      // pas lire le profil d'un gestionnaire affecté au cabinet B.
+      const service = factory();
+      const g = await service.obtenirGestionnaire(ctxCabinetA, gestionnaireDuCabinetB);
+      expect(g).toBeNull();
+    });
+
+    it('listerGestionnaires() du cabinet A ne contient AUCUN gestionnaire affecté au cabinet B', async () => {
+      const service = factory();
+      const gA = await service.listerGestionnaires(ctxCabinetA);
+      const gB = await service.listerGestionnaires(ctxCabinetB);
+      expect(gA.length).toBeGreaterThan(0);
+      expect(gB.length).toBeGreaterThan(0);
+      const idsB = new Set(gB.map((g) => g.id));
+      for (const g of gA) expect(idsB.has(g.id)).toBe(false);
+    });
+
+    it('obtenirMetriquesPortefeuille() ne renvoie AUCUNE métrique pour une entreprise du cabinet B', async () => {
+      const service = factory();
+      const metsA = await service.obtenirMetriquesPortefeuille(ctxCabinetA);
+      expect(metsA.length).toBeGreaterThan(0);
+      const idsA = new Set(metsA.map((m) => m.entrepriseId));
+      expect(idsA.has(entrepriseAuPortefeuilleB)).toBe(false);
+    });
+
+    it('obtenirMetriquesPortefeuille() — invariant 1 — n\'expose JAMAIS de montant (brut/cnps/its/net)', async () => {
+      const service = factory();
+      const mets = await service.obtenirMetriquesPortefeuille(ctxCabinetA);
+      for (const m of mets) {
+        expect(m).not.toHaveProperty('brut');
+        expect(m).not.toHaveProperty('cnps');
+        expect(m).not.toHaveProperty('its');
+        expect(m).not.toHaveProperty('net');
+        expect(m).not.toHaveProperty('masseSalariale');
+      }
+    });
+  });
+}
+
+// -----------------------------------------------------------------------------
+// Invariant 8 — Console opérateur : agrégat plateforme + net jamais agrégé
+//
+// La console est la SEULE surface où l'agrégation cross-tenant est légitime
+// (rôle opérateur). Mais :
+//  1. L'agrégat plateforme contient bien les entreprises de tous les tenants
+//     (atlantique + comoe + ec-*) — c'est la définition même de l'agrégat.
+//  2. AUCUNE métrique plateforme (par entreprise ou cabinet, ni globale) ne
+//     contient un champ net salarial. Les montants admin = REVENU PLI (MRR,
+//     ARR), pas salaire individuel.
+//  3. L'impersonation produit un journal d'audit (testé en 12d quand la
+//     méthode listerJournalAdmin existera).
+// -----------------------------------------------------------------------------
+export function suiteContratAdminAgregat(
+  nomImpl: string,
+  factory: () => AdminService,
+  ctx: ContexteAdmin,
+): void {
+  describe(`[Contrat ${nomImpl}] AdminService — Agrégat plateforme et invariant 1`, () => {
+    it("listerEntreprises() agrège TOUS les tenants — directs (atlantique, comoe) ET cabinets (ec-*)", async () => {
+      const service = factory();
+      const ents = await service.listerEntreprises(ctx);
+      const ids = new Set(ents.map((e) => e.id));
+      // Tenants Pli Pro directs
+      expect(ids.has('atlantique')).toBe(true);
+      expect(ids.has('comoe')).toBe(true);
+      // Au moins une entreprise cliente de cabinet
+      const cabinetEnts = ents.filter((e) => e.modeGestion === 'deleguee_cabinet');
+      expect(cabinetEnts.length).toBeGreaterThan(0);
+    });
+
+    it("listerCabinets() expose les deux cabinets démo (cab-ebrie, cab-lagune-i)", async () => {
+      const service = factory();
+      const cabs = await service.listerCabinets(ctx);
+      const ids = new Set(cabs.map((c) => c.id));
+      expect(ids.has('cab-ebrie')).toBe(true);
+      expect(ids.has('cab-lagune-i')).toBe(true);
+    });
+
+    it("obtenirMetriquesPlateforme() — invariant 1 — n'expose AUCUN net salarial individuel", async () => {
+      const service = factory();
+      const m = await service.obtenirMetriquesPlateforme(ctx);
+      expect(m).not.toHaveProperty('net');
+      expect(m).not.toHaveProperty('brut');
+      expect(m).not.toHaveProperty('cnps');
+      expect(m).not.toHaveProperty('its');
+      expect(m).not.toHaveProperty('masseSalariale');
+      // Mais les agrégats Pli LÉGITIMES sont bien présents.
+      expect(typeof m.mrrTotal).toBe('number');
+      expect(typeof m.arrProjete).toBe('number');
+      expect(m.arrProjete).toBe(m.mrrTotal * 12);
+    });
+
+    it("listerMetriquesEntreprises() — invariant 1 — n'expose AUCUN net par entreprise", async () => {
+      const service = factory();
+      const mets = await service.listerMetriquesEntreprises(ctx);
+      expect(mets.length).toBeGreaterThan(0);
+      for (const m of mets) {
+        expect(m).not.toHaveProperty('net');
+        expect(m).not.toHaveProperty('brut');
+        expect(m).not.toHaveProperty('cnps');
+        expect(m).not.toHaveProperty('its');
+        expect(m).not.toHaveProperty('masseSalariale');
+        // Les agrégats LÉGITIMES (compteurs + MRR Pli) sont présents.
+        expect(typeof m.mrr).toBe('number');
+        expect(typeof m.salaries).toBe('number');
+      }
+    });
+
+    it("listerMetriquesCabinets() — invariant 1 — n'expose AUCUN net par cabinet", async () => {
+      const service = factory();
+      const mets = await service.listerMetriquesCabinets(ctx);
+      expect(mets.length).toBeGreaterThan(0);
+      for (const m of mets) {
+        expect(m).not.toHaveProperty('net');
+        expect(m).not.toHaveProperty('masseSalariale');
+      }
+    });
+
+    it("listerActivitePlateforme() — la timeline ne contient JAMAIS un net salarial (ex. « 473 000 »)", async () => {
+      // Sanity check : les textes d'activité parlent de paiements (revenu Pli)
+      // ou d'évènements de gestion. Aucune mention d'un montant net salarial.
+      const service = factory();
+      const evts = await service.listerActivitePlateforme(ctx);
+      const netsInterdits = [473000, 615000, 480000, 247000, 295000, 1250000];
+      for (const e of evts) {
+        for (const n of netsInterdits) {
+          const motif = new RegExp(`\\b${n.toLocaleString('fr-FR').replace(/\s/g, '\\s')}\\b`);
+          expect(e.texte).not.toMatch(motif);
+        }
+      }
+    });
+
+    it("impersonnerEntreprise() retourne un journalId — preuve qu'une entrée d'audit a été posée", async () => {
+      // Sub-lot 12b : on vérifie que la méthode RENVOIE bien un journalId
+      // (contrat d'API). Sub-lot 12d ajoutera la vérification que l'entrée
+      // est LISIBLE via listerJournalAdmin (avec date, acteur, IP).
+      const service = factory();
+      const r1 = await service.impersonnerEntreprise(ctx, 'atlantique');
+      const r2 = await service.impersonnerEntreprise(ctx, 'comoe');
+      expect(r1.journalId).toMatch(/^la-\d{4}$/);
+      expect(r2.journalId).toMatch(/^la-\d{4}$/);
+      expect(r1.journalId).not.toBe(r2.journalId); // entrées distinctes
     });
   });
 }

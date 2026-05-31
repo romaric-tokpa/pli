@@ -16,7 +16,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
 import { SiteLanding } from '../routes/public/landing.js';
 import { AdminLayout } from '../routes/admin/layout.js';
-import { AdminHub } from '../routes/admin/hub.js';
+import { AdminVueEnsemble } from '../routes/admin/vue-ensemble.js';
 
 function noindexMeta(): HTMLMetaElement | null {
   return document.querySelector('meta[name="robots"][data-pli-admin="1"]');
@@ -44,7 +44,7 @@ describe('Console opérateur — invariant noindex', () => {
       <MemoryRouter initialEntries={['/admin']}>
         <Routes>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminHub />} />
+            <Route index element={<AdminVueEnsemble />} />
           </Route>
         </Routes>
       </MemoryRouter>,
@@ -59,7 +59,7 @@ describe('Console opérateur — invariant noindex', () => {
       <MemoryRouter initialEntries={['/admin']}>
         <Routes>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminHub />} />
+            <Route index element={<AdminVueEnsemble />} />
           </Route>
         </Routes>
       </MemoryRouter>,
@@ -74,7 +74,7 @@ describe('Console opérateur — invariant noindex', () => {
       <MemoryRouter initialEntries={['/admin']}>
         <Routes>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminHub />} />
+            <Route index element={<AdminVueEnsemble />} />
           </Route>
         </Routes>
       </MemoryRouter>,
@@ -84,7 +84,7 @@ describe('Console opérateur — invariant noindex', () => {
       <MemoryRouter initialEntries={['/admin']}>
         <Routes>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminHub />} />
+            <Route index element={<AdminVueEnsemble />} />
           </Route>
         </Routes>
       </MemoryRouter>,

@@ -13,7 +13,9 @@
 export type {
   ContexteEntreprise,
   ContextePersonnel,
+  ContextePortefeuilleCabinet,
   ContexteCabinet,
+  ContexteEspaceCabinet,
   ContexteAdmin,
   ContexteScopeEntreprise,
   ContexteAcces,

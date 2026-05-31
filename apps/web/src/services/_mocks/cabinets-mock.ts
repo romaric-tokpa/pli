@@ -1,35 +1,55 @@
 // Implémentation mock de CabinetsService.
+//
+// Sub-lot 11b : porte la lecture du portefeuille sur la nouvelle source
+// `data-portefeuille-cabinet.ts` (entreprises CLIENTES du cabinet, distinctes
+// des tenants Pli Pro directs). Ajoute `obtenirMetriquesPortefeuille`.
 
-import type { ContexteCabinet } from '../contexte.js';
+import type { ContextePortefeuilleCabinet, ContexteEspaceCabinet } from '../contexte.js';
 import type { CabinetsService } from '../cabinets-service.js';
 import { CABINETS, GESTIONNAIRES_CABINETS } from './data-cabinets.js';
-import { ENTREPRISES_TENANT } from './data-entreprises.js';
+import {
+  ENTREPRISES_CABINETS,
+  METRIQUES_PORTEFEUILLE_CABINET,
+} from './data-portefeuille-cabinet.js';
 
 export function creerCabinetsServiceMock(): CabinetsService {
   return {
-    async obtenirCabinet(ctx: ContexteCabinet) {
+    async obtenirCabinet(ctx: ContexteEspaceCabinet) {
       return CABINETS.find((c) => c.id === ctx.cabinetId) ?? null;
-    },
-
-    async obtenirPortefeuille(ctx) {
-      const cab = CABINETS.find((c) => c.id === ctx.cabinetId);
-      if (!cab) return [];
-      // Le ContexteCabinet pointe sur UNE entreprise du portefeuille, mais
-      // obtenirPortefeuille() retourne le PORTEFEUILLE COMPLET du cabinet,
-      // pour permettre la sélection. Le cloisonnement entre entreprises est
-      // appliqué au moment d'invoquer un service scopé sur une entreprise.
-      return cab.entreprisesIds
-        .map((id) => ENTREPRISES_TENANT[id])
-        .filter((e): e is NonNullable<typeof e> => e !== undefined);
     },
 
     async listerGestionnaires(ctx) {
       return GESTIONNAIRES_CABINETS.filter((g) => g.cabinetId === ctx.cabinetId);
     },
 
+    async obtenirGestionnaire(ctx, gestionnaireId) {
+      return (
+        GESTIONNAIRES_CABINETS.find(
+          (g) => g.id === gestionnaireId && g.cabinetId === ctx.cabinetId,
+        ) ?? null
+      );
+    },
+
+    async obtenirPortefeuille(ctx: ContextePortefeuilleCabinet) {
+      // Cloisonnement structurel : on filtre par cabinetId sur la source des
+      // entreprises clientes. Aucune chance qu'une entreprise d'un autre
+      // cabinet ne traverse.
+      return ENTREPRISES_CABINETS.filter((e) => e.cabinetId === ctx.cabinetId);
+    },
+
     async appartientAuPortefeuille(ctx, entrepriseId) {
-      const cab = CABINETS.find((c) => c.id === ctx.cabinetId);
-      return cab?.entreprisesIds.includes(entrepriseId) ?? false;
+      return ENTREPRISES_CABINETS.some(
+        (e) => e.id === entrepriseId && e.cabinetId === ctx.cabinetId,
+      );
+    },
+
+    async obtenirMetriquesPortefeuille(ctx) {
+      const idsPortefeuille = new Set(
+        ENTREPRISES_CABINETS.filter((e) => e.cabinetId === ctx.cabinetId).map((e) => e.id),
+      );
+      return METRIQUES_PORTEFEUILLE_CABINET.filter((m) =>
+        idsPortefeuille.has(m.entrepriseId),
+      );
     },
   };
 }

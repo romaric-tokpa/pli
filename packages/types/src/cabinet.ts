@@ -47,3 +47,25 @@ export interface GestionnaireCabinet {
   /** Authentification à deux facteurs activée. */
   a2f: boolean;
 }
+
+/**
+ * Métriques d'opération d'une entreprise du portefeuille, vues depuis le
+ * cabinet. Ce type AGGRÉGÉ ne porte AUCUN montant (CLAUDE.md invariant 1
+ * — le net ne vit jamais dans une liste). Effectif et compteurs de
+ * bulletins seulement — pas de masse salariale, pas de chiffre par
+ * employé.
+ */
+export interface MetriquesPortefeuilleEntreprise {
+  entrepriseId: IdEntite;
+  salaries: number;
+  /** Bulletins distribués sur le mois courant. */
+  bulletinsMois: number;
+  /** Bulletins reçus par Pli mais pas encore distribués (file d'attente RH). */
+  bulletinsAUploader: number;
+  /** Bulletins uploadés mais pas encore distribués (file de réconciliation). */
+  bulletinsADistribuer: number;
+  /** Relances de consultation en attente d'envoi. */
+  relancesEnAttente: number;
+  /** Taux de consultation, entre 0 et 1. */
+  consultation: number;
+}
